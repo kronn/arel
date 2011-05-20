@@ -103,6 +103,23 @@ module Arel
       end
     end
 
+    describe 'as' do
+      it 'should create a node that is like the original table' do
+        @relation.must_respond_to(:as)
+
+        node = @relation.as(:foo)
+        node.must_be_kind_of(Table)
+        node.name.must_equal 'users'
+        node.table_alias.to_sym.to_s.must_equal 'foo'
+
+        node.wont_equal @relation
+
+        # this tries to compare the columns by name in order to verify that the tables are the same
+        col_name = lambda { |col| col.name }
+        node.columns.map(&col_name).must_equal @relation.columns.map(&col_name)
+      end
+    end
+
     describe 'new' do
       it 'should accept an engine' do
         rel = Table.new :users, 'foo'

@@ -6,7 +6,7 @@ module Arel
     @engine = nil
     class << self; attr_accessor :engine; end
 
-    attr_accessor :name, :engine, :aliases, :table_alias
+    attr_accessor :name, :engine, :aliases, :table_alias, :options
 
     # TableAlias and Table both have a #table_name which is the name of the underlying table
     alias :table_name :name
@@ -18,6 +18,7 @@ module Arel
       @aliases = []
       @table_alias = nil
       @primary_key = nil
+      @options = (Hash === engine) ? engine : {}
 
       if Hash === engine
         @engine  = engine[:engine] || Table.engine
@@ -46,6 +47,10 @@ primary_key (#{caller.first}) is deprecated and will be removed in ARel 3.0.0
       Nodes::TableAlias.new(self, name).tap do |node|
         @aliases << node
       end
+    end
+
+    def as table_alias
+      Table.new(name, options.merge(:as => table_alias))
     end
 
     def from table
